@@ -1,0 +1,1 @@
+﻿[Failure] Could not find file 'D:\Users\anh.nguyenquang\AppData\Local\Temp\.NETFramework,Version=v4.6.AssemblyAttributes.cs'.

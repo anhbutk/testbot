@@ -1,0 +1,4 @@
+﻿1>------ Build started: Project: AiNumberGuesserBot, Configuration: Debug Any CPU ------
+1>D:\Research\DotnetCore\AiNumberGuesserBotDatabase\AiNumberGuesserBot\NumberGuesserDialog.cs(18,27,18,37): warning CS1998: This async method lacks 'await' operators and will run synchronously. Consider using the 'await' operator to await non-blocking API calls, or 'await Task.Run(...)' to do CPU-bound work on a background thread.
+1>  AiNumberGuesserBot -> D:\Research\DotnetCore\AiNumberGuesserBotDatabase\AiNumberGuesserBot\bin\Bot Application1.dll
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========
