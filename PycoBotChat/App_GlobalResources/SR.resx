@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="EmailOTP" xml:space="preserve">
-    <value>&lt;h1&gt;The following email was sent to you by PycoGroup.&lt;/h1&gt;&lt;br /&gt;&lt;p&gt;Apparently, you needed OTP to chat with PycoBot- So here it is: &lt;br /&gt;OTP:&lt;b&gt;{0}&lt;/b&gt;&lt;br /&gt;</value>
+    <value>&lt;h3&gt;The following email was sent to you by PycoGroup.&lt;/h3&gt;&lt;br /&gt;&lt;p&gt;Apparently, you needed OTP to chat with PycoBot- So here it is: &lt;br /&gt;OTP:&lt;b&gt;{0}&lt;/b&gt;&lt;br /&gt;&lt;/p&gt;</value>
   </data>
   <data name="EmailSubject" xml:space="preserve">
     <value>Your OTP to authorise with PycoGroup team</value>
@@ -133,7 +133,7 @@
     <value>Check your {0}, and give us OTP for authorization.This OTP will be expired in 1 hour.</value>
   </data>
   <data name="OTPValid" xml:space="preserve">
-    <value>Congratulation.You are authorized with Pyco Bot.Now you can ask anything about Pyco Group.\n\n.</value>
+    <value>Congratulation {0}.You are authorized with Pyco Bot. Now, what the team are you looking for?</value>
   </data>
   <data name="OTPWrong" xml:space="preserve">
     <value>You OTP is not correct. Please input again.</value>
@@ -145,7 +145,7 @@
     <value>We are digital consulting and software development agency</value>
   </data>
   <data name="Welcome" xml:space="preserve">
-    <value>Hello {0}!.What the team are you looking for?</value>
+    <value>Now, what the team are you looking for?</value>
   </data>
   <data name="WelcomeTilte" xml:space="preserve">
     <value>Welcome to Pyco Bot</value>

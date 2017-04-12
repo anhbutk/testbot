@@ -133,9 +133,8 @@ namespace PycoBotChat
                             DB.Users.Attach(user);
                             DB.Entry(user).State = EntityState.Modified;
                             // other changed properties
-                            DB.SaveChanges();
-                            strReplyMessage.Append(SR.OTPValid);
-                            strReplyMessage.Append(string.Format(SR.Welcome, activity.From.Name));
+                            DB.SaveChanges();                            
+                            strReplyMessage.Append(string.Format(SR.OTPValid, activity.From.Name));
                             ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
                             Activity replyMessage = activity.CreateReply(strReplyMessage.ToString());
 
@@ -198,6 +197,7 @@ namespace PycoBotChat
         {
             if (message.Type == ActivityTypes.DeleteUserData)
             {
+                SaveLog(message);
                 // Implement user deletion here
                 // If we handle user deletion, return a real message
             }
@@ -310,57 +310,6 @@ namespace PycoBotChat
             DB.SaveChanges();
         }
         
-        #region ShowHighScores
-        private void ShowHighScores(Activity activity)
-        {
-            // This method will take an Activity and return a response
-            // that will conatin the current High Scores
-
-            // Connect to the database
-            Models.BotDataEntities DB = new Models.BotDataEntities();
-
-            // Get Yesterday
-            var ParamYesterday = DateTime.Now.AddDays(-1);
-
-            // Get the top 5 high scores since yesterday
-            var HighScores = (from UserLog in DB.UserLogs
-                              where UserLog.CountOfTurnsToWin != null
-                              where UserLog.created > ParamYesterday
-                              select UserLog)
-                                .OrderBy(x => x.CountOfTurnsToWin)
-                                .Take(5)
-                                .ToList();
-
-            // Create a response
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-            sb.Append("High Scores Today:\n\n");
-
-            // Loop through each high score
-            foreach (var Score in HighScores)
-            {
-                // Add the High Score to the response
-                sb.Append(String.Format("Score: {0} - {1} - ({2} {3})\n\n"
-                    , Score.CountOfTurnsToWin
-                    , Score.WinnerUserName
-                    , Score.created.ToLocalTime().ToShortDateString()
-                    , Score.created.ToLocalTime().ToShortTimeString()));
-            }
-
-            // Create a reply message
-            Activity replyToConversation = activity.CreateReply();
-            replyToConversation.Recipient = activity.From;
-            replyToConversation.Type = "message";
-            // Set the text containg the High Scores as the response
-            replyToConversation.Text = sb.ToString();
-
-            // Create a ConnectorClient and use it to send the reply message
-            var connector =
-                new ConnectorClient(new Uri(activity.ServiceUrl));
-
-            // Send the reply
-            connector.Conversations.SendToConversationAsync(replyToConversation);
-        }
-        #endregion
+     
     }
 }

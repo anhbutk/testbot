@@ -65,7 +65,7 @@ namespace PycoBotChat.Helpers
                 var apiKey = "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";// System.Environment.GetEnvironmentVariable("SENDGRID_APIKEY");
                 var client = new SendGridClient(apiKey);
 
-                var from = new EmailAddress("anh.nguyenquang@pycogroup.com", "Anh Nguyen");
+                var from = new EmailAddress("pycogroup.chatbot@pycogroup.com", "Pyco Bot Chat");
              
                 var to = new EmailAddress(toAddresses, userName);
             

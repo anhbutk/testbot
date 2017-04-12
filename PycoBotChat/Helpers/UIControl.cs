@@ -32,6 +32,17 @@ namespace PycoBotChat.Helpers
             return cardButtons;
         }
 
+
+        public static CardAction DetailResource(string fullname, string username)
+        {
+            CardAction card = new CardAction()
+            {
+                Type = "imBack",
+                Title = fullname,
+                Value = string.Format("search:{0}", fullname)
+            };
+            return card;
+        }
         #region private static Activity ShowButtons(IDialogContext context, string strText)
         public static Activity ShowButtons(IDialogContext context, string strText)
         {

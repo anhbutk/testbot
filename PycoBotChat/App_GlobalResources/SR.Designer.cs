@@ -61,7 +61,7 @@ namespace Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;h1&gt;The following email was sent to you by PycoGroup.&lt;/h1&gt;&lt;br /&gt;&lt;p&gt;Apparently, you needed OTP to chat with PycoBot- So here it is: &lt;br /&gt;OTP:&lt;b&gt;{0}&lt;/b&gt;&lt;br /&gt;.
+        ///   Looks up a localized string similar to &lt;h3&gt;The following email was sent to you by PycoGroup.&lt;/h3&gt;&lt;br /&gt;&lt;p&gt;Apparently, you needed OTP to chat with PycoBot- So here it is: &lt;br /&gt;OTP:&lt;b&gt;{0}&lt;/b&gt;&lt;br /&gt;&lt;/p&gt;.
         /// </summary>
         internal static string EmailOTP {
             get {
@@ -106,7 +106,7 @@ namespace Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Congratulation.You are authorized with Pyco Bot.Now you can ask anything about Pyco Group.\n\n..
+        ///   Looks up a localized string similar to Congratulation {0}.You are authorized with Pyco Bot. Now, what the team are you looking for?.
         /// </summary>
         internal static string OTPValid {
             get {
@@ -142,7 +142,7 @@ namespace Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello {0}!.What the team are you looking for?.
+        ///   Looks up a localized string similar to Now, what the team are you looking for?.
         /// </summary>
         internal static string Welcome {
             get {

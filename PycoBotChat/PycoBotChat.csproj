@@ -135,12 +135,17 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\ALLOCATION_EFFORT_VIEW.cs" />
+    <Compile Include="Models\ALLOCATION_VIEW.cs" />
     <Compile Include="App_GlobalResources\SR.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>SR.resx</DependentUpon>
     </Compile>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Models\C003_ALLOCATION_WEEK_VIEW.cs" />
+    <Compile Include="Models\C003_COMPARE_TMS_RMD.cs" />
+    <Compile Include="Models\C003_TIMESHEET_WEEK_VIEW.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -154,6 +159,8 @@
     <Compile Include="Models\R_PERIOD.cs" />
     <Compile Include="Models\R_PERIOD_VIEW.cs" />
     <Compile Include="Models\UserLog.cs" />
+    <Compile Include="Models\PROJECT_STATUS_VIEW.cs" />
+    <Compile Include="Models\PROJECT_VIEW.cs" />
     <Compile Include="ResourceDialog.cs" />
     <Compile Include="NumberGuesserDialog.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -163,6 +170,11 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Models\User.cs" />
+    <Compile Include="Models\RESOURCE_EMPLOYMMENT_DURATION.cs" />
+    <Compile Include="Models\R_LAST_DEPTNAME.cs" />
+    <Compile Include="Models\R_LAST_ENDDATE.cs" />
+    <Compile Include="Models\SKILLSET_VIEW.cs" />
+    <Compile Include="Models\TIMESHEET_PROJECT_INFO_VIEW.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>

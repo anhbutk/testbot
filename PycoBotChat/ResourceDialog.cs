@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using PycoBotChat.Helpers;
 using Resources;
 using PycoBotChat.Models;
+using System.Globalization;
 
 namespace PycoBotChat
 {
@@ -36,54 +37,6 @@ namespace PycoBotChat
 
                // Get the text passed
             var message = await argument;
-
-            // See if a number was passed
-            //if (!int.TryParse(message.Text, out intGuessedNumber))
-            //{
-            //    // A number was not passed  
-
-            //    // Create a reply Activity
-            //    Activity replyToConversation = (Activity)context.MakeMessage();
-            //    replyToConversation.Recipient = replyToConversation.Recipient;
-            //    replyToConversation.Type = "message";
-
-            //    string strLogo =
-            //        String.Format(@"{0}/{1}",
-            //        strBaseURL,
-            //        "Images/Pycologo.png");
-
-            //    List<CardImage> cardImages = new List<CardImage>();
-            //    cardImages.Add(new CardImage(url: strLogo));
-
-            //    // Create the Buttons
-            //    // Call the CreateButtons utility method
-            //    List<CardAction> cardButtons = CreateButtons();
-
-            //    // Create the Hero Card
-            //    // Set the image and the buttons
-            //    HeroCard plCard = new HeroCard()
-            //    {
-            //        Images = cardImages,
-            //        Buttons = cardButtons,
-            //    };
-
-            //    // Create an Attachment by calling the
-            //    // ToAttachment() method of the Hero Card                
-            //    Attachment plAttachment = plCard.ToAttachment();
-            //    // Attach the Attachment to the reply
-            //    replyToConversation.Attachments.Add(plAttachment);
-            //    // set the AttachmentLayout as 'list'
-            //    replyToConversation.AttachmentLayout = "list";
-
-            //    // Send the reply
-            //    // Create text for a reply message   
-            //    replyToConversation.Text = string.Format(SR.Welcome, message.From.Name);
-                
-            //    await context.PostAsync(replyToConversation);
-            //    context.Wait(MessageReceivedAsync);
-            //}
-
-            // This code will run when the user has entered a number
             if (Department.Contains(message.Text))
             {
                 //this.Database.SqlQuery<YourEntityType>("storedProcedureName",params);
@@ -95,42 +48,32 @@ namespace PycoBotChat
                 await context.PostAsync(replyToConversation);
                 context.Wait(MessageReceivedAsync);
             }
+            else if (message.Text.Contains("search:"))
+            {
+                string fullname = message.Text.Substring(7);
+                Models.BotDataEntities DB = new Models.BotDataEntities();
+                var currentCulture = CultureInfo.CurrentCulture;
+                int weekNo = currentCulture.Calendar.GetWeekOfYear(
+                                DateTime.Now,
+                                currentCulture.DateTimeFormat.CalendarWeekRule,
+                                currentCulture.DateTimeFormat.FirstDayOfWeek);
+                var detail = DB.C003_ALLOCATION_WEEK_VIEW.Where(x => x.STATUS == "On" && x.FULLNAME == fullname && x.Year.Value == DateTime.Now.Year && x.Week.Value == weekNo).ToList();
+                Activity replyToConversation = BuildDetailResource(context, detail, fullname);
+
+                await context.PostAsync(replyToConversation);
+                context.Wait(MessageReceivedAsync);
+            }
             else
             {
                 // Create a response
                 // This time call the ** ShowButtons ** method
                 Activity replyToConversation = UIControl.
-                    ShowButtons(context, "It's not a department.Please choice again.");
+                    ShowButtons(context, "It's not a department or resource name in PycoGroup.Please choice again.");
                 await context.PostAsync(replyToConversation);
                 context.Wait(MessageReceivedAsync);
             }
 
-            //if (int.TryParse(message.Text, out intGuessedNumber))
-            //{
-            //    // A number was passed
-            //    // See if it was the correct number
-            //    if (intGuessedNumber != this.intNumberToGuess)
-            //    {
-            //        // The number was not correct
-            //        this.intAttempts++;
-
-            //        // Create a response
-            //        // This time call the ** ShowButtons ** method
-            //        Activity replyToConversation =
-            //            ShowButtons(context, "Not correct. Guess again.");
-
-               
-
-            //        await context.PostAsync(replyToConversation);
-            //        context.Wait(MessageReceivedAsync);
-            //    }
-            //    else
-            //    {
-            //        // Game completed
-            //        StringBuilder sb = new StringBuilder();
-            //        sb.Append("Congratulations! ");
-            //        sb.Append("The number to guess was {0}. ");
-            //        sb.Append("You needed {1} attempts. ");
+           
             //        sb.Append("Would you like to play again?");
 
             //        string CongratulationsStringPrompt =
@@ -153,12 +96,34 @@ namespace PycoBotChat
             //}
         }
 
+        private Activity BuildDetailResource(IDialogContext context, List<C003_ALLOCATION_WEEK_VIEW> resourceList , string fullname)
+        {
+            string noAssigned = $"{fullname} is available this week.";
+            string strReplyMessage = $"{fullname} are working on **{resourceList.Count}** projects this week:\n\n";
+            foreach (C003_ALLOCATION_WEEK_VIEW item in resourceList)
+            {
+                strReplyMessage += $"Project:**{item.PROJECTNAME}**, Hours: {item.Hours_RMD.Value.ToString()}.\n\n";
+               
+            }
+            Activity replyToConversation = (Activity)context.MakeMessage();
+            replyToConversation.Text = resourceList.Count> 0 ? strReplyMessage : noAssigned;
+            replyToConversation.Recipient = replyToConversation.Recipient;
+            replyToConversation.Type = "message";
+            return replyToConversation;
+        }
+
         private Activity BuildResourceList(IDialogContext context, List<RESOURCE_VIEW> resourceList, string department)
         {
+            HeroCard plCard = new HeroCard()
+            {
+                Buttons = new List<CardAction>()
+            };
+
             string strReplyMessage = $"There are **{resourceList.Count}** members in {department} team:\n\n";
             foreach (RESOURCE_VIEW item in resourceList)
             {
                 strReplyMessage += $"Name:**{item.FULLNAME}**, {item.TITLE}, Skype: skype:{item.SKYPE}?chat, Phone:**{item.PHONE}**.\n\n";
+                plCard.Buttons.Add(UIControl.DetailResource(item.FULLNAME, item.USERNAME));
             }
             strReplyMessage += $"Confluence space: {ConfluenceTeam(department)}.\n\n";
             // Create a reply Activity
@@ -166,6 +131,12 @@ namespace PycoBotChat
             replyToConversation.Text = strReplyMessage;
             replyToConversation.Recipient = replyToConversation.Recipient;
             replyToConversation.Type = "message";
+            //Create an Attachment
+            //set the AttachmentLayout as 'list'
+            Attachment plAttachment = plCard.ToAttachment();
+            replyToConversation.Attachments.Add(plAttachment);
+            replyToConversation.AttachmentLayout = "list";
+
             return replyToConversation;
         }
 
@@ -179,7 +150,7 @@ namespace PycoBotChat
                 case "NET":
                     url = "https://apps.pyramid-consulting.com/docs/display/TMS/.NET";
                     break;
-                case "HTML":
+                case "FE":
                     url = "https://apps.pyramid-consulting.com/docs/display/FnM";
                     break;
                 case "PHP":
