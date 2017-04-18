@@ -85,6 +85,9 @@
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net46\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="SendGrid, Version=9.1.0.0, Culture=neutral, PublicKeyToken=4f047e93159395ca, processorArchitecture=MSIL">
       <HintPath>..\packages\Sendgrid.9.1.0\lib\net452\SendGrid.dll</HintPath>
     </Reference>
@@ -135,6 +138,8 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\WebmailConfiguration.cs" />
+    <Compile Include="Models\ALLOCATION.cs" />
     <Compile Include="Models\ALLOCATION_EFFORT_VIEW.cs" />
     <Compile Include="Models\ALLOCATION_VIEW.cs" />
     <Compile Include="App_GlobalResources\SR.Designer.cs">
@@ -154,10 +159,14 @@
     <Compile Include="Helpers\UIControl.cs" />
     <Compile Include="LUISDialogClass.cs" />
     <Compile Include="Models\BotDataEntities.cs" />
+    <Compile Include="Models\PROJECT.cs" />
+    <Compile Include="Models\ProjectStatusHistory.cs" />
     <Compile Include="Models\RESOURCE.cs" />
+    <Compile Include="Models\RESOURCE_IN_PROJECT_VIEW.cs" />
     <Compile Include="Models\RESOURCE_VIEW.cs" />
     <Compile Include="Models\R_PERIOD.cs" />
     <Compile Include="Models\R_PERIOD_VIEW.cs" />
+    <Compile Include="Models\R_SKILLSET.cs" />
     <Compile Include="Models\UserLog.cs" />
     <Compile Include="Models\PROJECT_STATUS_VIEW.cs" />
     <Compile Include="Models\PROJECT_VIEW.cs" />

@@ -9,6 +9,7 @@ using PycoBotChat.Helpers;
 using Resources;
 using PycoBotChat.Models;
 using System.Globalization;
+using System.Threading;
 
 namespace PycoBotChat
 {
@@ -17,8 +18,7 @@ namespace PycoBotChat
     {
         string strBaseURL;
         public static readonly List<string> Department = new List<string> { "JAVA", "NET", "PHP", "QC", "PM", "HTML", "Mobile", "BA" };
-        protected int intNumberToGuess;
-        protected int intAttempts;
+        string[] keys = new string[] { "search:", "report:","team:" };
 
         #region public async Task StartAsync(IDialogContext context)
         public async Task StartAsync(IDialogContext context)
@@ -37,43 +37,54 @@ namespace PycoBotChat
 
                // Get the text passed
             var message = await argument;
-            if (Department.Contains(message.Text))
+            string sKeyResult = keys.FirstOrDefault<string>(s => message.Text.ToLower().Contains(s));
+            string deparment = message.Text.Replace("HTML", "FE");
+            switch (sKeyResult)
             {
-                //this.Database.SqlQuery<YourEntityType>("storedProcedureName",params);
-                Models.BotDataEntities DB = new Models.BotDataEntities();
-                string deparment = message.Text.Equals("HTML") ? "FE" : message.Text;
-                var resourceList = DB.RESOURCE_VIEW.Where(x => x.STATUS == "On" && x.COMPANY == "Inhouse" && x.DEPTNAME == deparment).ToList();
-                Activity replyToConversation = BuildResourceList(context, resourceList, deparment);
+                case "report:":
+                    {
+                        Activity replyToConversation = BuildReportTeam(context, deparment.Split(':')[1]);
+                        await context.PostAsync(replyToConversation);
+                        context.Wait(MessageReceivedAsync);
+                        break;
+                    }
+                case "team:":
+                    {
+                        //this.Database.SqlQuery<YourEntityType>("storedProcedureName",params);
+                        
+                        Activity replyToConversation = BuildResourceList(context, deparment);
+                        await context.PostAsync(replyToConversation);
+                        context.Wait(MessageReceivedAsync);
+                        break;
+                    }
+                case "search:":
+                    {
+                        string fullname = message.Text.Substring(7);
+                        Models.BotDataEntities DB = new Models.BotDataEntities();
+                        var currentCulture = CultureInfo.CurrentCulture;
+                        int weekNo = currentCulture.Calendar.GetWeekOfYear(
+                                        DateTime.Now,
+                                        currentCulture.DateTimeFormat.CalendarWeekRule,
+                                        currentCulture.DateTimeFormat.FirstDayOfWeek);
+                        var detail = DB.C003_ALLOCATION_WEEK_VIEW.Where(x => x.STATUS == "On" && x.FULLNAME == fullname && x.Year.Value == DateTime.Now.Year && x.Week.Value == weekNo).ToList();
+                        Activity replyToConversation = BuildDetailResource(context, detail, fullname);
 
-                await context.PostAsync(replyToConversation);
-                context.Wait(MessageReceivedAsync);
+                        await context.PostAsync(replyToConversation);
+                        context.Wait(MessageReceivedAsync);
+                        break;
+                    }
+                default:
+                    {
+                        // Create a response
+                        // This time call the ** ShowButtons ** method
+                        Activity replyToConversation = UIControl.
+                            ShowButtons(context, "It's not a department or resource name in PycoGroup.Please choice again.","team");
+                        await context.PostAsync(replyToConversation);
+                        context.Wait(MessageReceivedAsync);
+                        break;
+                    }
             }
-            else if (message.Text.Contains("search:"))
-            {
-                string fullname = message.Text.Substring(7);
-                Models.BotDataEntities DB = new Models.BotDataEntities();
-                var currentCulture = CultureInfo.CurrentCulture;
-                int weekNo = currentCulture.Calendar.GetWeekOfYear(
-                                DateTime.Now,
-                                currentCulture.DateTimeFormat.CalendarWeekRule,
-                                currentCulture.DateTimeFormat.FirstDayOfWeek);
-                var detail = DB.C003_ALLOCATION_WEEK_VIEW.Where(x => x.STATUS == "On" && x.FULLNAME == fullname && x.Year.Value == DateTime.Now.Year && x.Week.Value == weekNo).ToList();
-                Activity replyToConversation = BuildDetailResource(context, detail, fullname);
-
-                await context.PostAsync(replyToConversation);
-                context.Wait(MessageReceivedAsync);
-            }
-            else
-            {
-                // Create a response
-                // This time call the ** ShowButtons ** method
-                Activity replyToConversation = UIControl.
-                    ShowButtons(context, "It's not a department or resource name in PycoGroup.Please choice again.");
-                await context.PostAsync(replyToConversation);
-                context.Wait(MessageReceivedAsync);
-            }
-
-           
+            
             //        sb.Append("Would you like to play again?");
 
             //        string CongratulationsStringPrompt =
@@ -112,8 +123,47 @@ namespace PycoBotChat
             return replyToConversation;
         }
 
-        private Activity BuildResourceList(IDialogContext context, List<RESOURCE_VIEW> resourceList, string department)
+
+        private Activity BuildReportTeam(IDialogContext context, string department)
         {
+            Models.BotDataEntities DB = new Models.BotDataEntities();
+            var resourceList = DB.RESOURCE_VIEW.Where(x => x.STATUS == "On" && x.DEPTNAME == department).ToList();
+            int inhouse = resourceList.Where(x => x.COMPANY == "Inhouse").Count();
+            int partners = resourceList.Where(x => x.COMPANY != "Inhouse").Count();
+            string strReplyMessage = $"There are {inhouse} inhouse resource , {partners} partners in {department} team.\n\n";
+
+            string[] status = new string[] { "Off", "Tmp", "Leaving" };
+            string[] projectname = new string[] { "Quotation", "Leave/Holiday" };
+            var reportList = DB.RESOURCE_IN_PROJECT_VIEW.Where(x => x.DEPTNAME == department && x.ProjectStatus != "Closed"
+            && !status.Any(y => y == x.ResourceStatus) && !projectname.Any(y => y == x.PROJECTNAME) && x.LastDate > DateTime.Now && !x.PROJECTNAME.Contains("Technical Support")).OrderBy(z => z.ProjectStatus);
+            int working = reportList.Where(x => x.ProjectStatus == "In Production").Select(x => x.FULLNAME).Distinct().Count();
+            string projectlist = string.Join(",", reportList.Where(x => x.ProjectStatus == "In Production").Select(x => x.PROJECTNAME).Distinct().ToArray());
+            int incomming = reportList.Where(x => x.ProjectStatus == "Incoming").Select(x => x.FULLNAME).Distinct().Count();
+            string incomingList = string.Join(",", reportList.Where(x => x.ProjectStatus == "Incoming").Select(x => x.PROJECTNAME).Distinct().ToArray());
+            strReplyMessage += $"- {working} working in project : {projectlist}.\n\n";
+            if (incomming > 0)
+            {
+                strReplyMessage += $"- {incomming} softbook in incomming projects: {incomingList}.\n\n";
+            }
+            Activity replyToConversation = (Activity)context.MakeMessage();
+            replyToConversation.Text = strReplyMessage;
+            replyToConversation.Recipient = replyToConversation.Recipient;
+            replyToConversation.Type = "message";
+            return replyToConversation;
+        }
+
+        private Activity BuildResourceList(IDialogContext context, string department)
+        {
+            Models.BotDataEntities DB = new Models.BotDataEntities();
+            List<RESOURCE_VIEW> resourceList;
+            string team = department.Split(':')[1];
+            try
+            {
+                resourceList = DB.RESOURCE_VIEW.Where(x => x.STATUS == "On" && x.COMPANY == "Inhouse" && x.DEPTNAME == team).ToList();
+            }
+            catch (Exception ex)
+            { throw ex; }
+
             HeroCard plCard = new HeroCard()
             {
                 Buttons = new List<CardAction>()
@@ -172,37 +222,37 @@ namespace PycoBotChat
             return url;
         }
 
-        private async Task PlayAgainAsync(IDialogContext context, IAwaitable<bool> result)
-        {
-            // Generate new random number
-            Random random = new Random();
-            this.intNumberToGuess = random.Next(1, 6);
+        //private async Task PlayAgainAsync(IDialogContext context, IAwaitable<bool> result)
+        //{
+        //    // Generate new random number
+        //    Random random = new Random();
+        //    this.intNumberToGuess = random.Next(1, 6);
 
-            // Reset attempts
-            this.intAttempts = 1;
+        //    // Reset attempts
+        //    this.intAttempts = 1;
 
-            // Get the response from the user
-            var confirm = await result;
+        //    // Get the response from the user
+        //    var confirm = await result;
 
-            if (confirm) // They said yes
-            {
-                // Start a new Game
-                // Create a response
-                // This time call the ** ShowButtons ** method
-                Activity replyToConversation = UIControl.
-                    ShowButtons(context,
-                    "Hi Welcome! - Guess a number between 1 and 5 \n\n Type 'High Scores' to see high scores");
+        //    if (confirm) // They said yes
+        //    {
+        //        // Start a new Game
+        //        // Create a response
+        //        // This time call the ** ShowButtons ** method
+        //        Activity replyToConversation = UIControl.
+        //            ShowButtons(context,
+        //            "Hi Welcome! - Guess a number between 1 and 5 \n\n Type 'High Scores' to see high scores");
 
 
-                await context.PostAsync(replyToConversation);
-                context.Wait(MessageReceivedAsync);
-            }
-            else // They said no
-            {
-                await context.PostAsync("Goodbye!(heart)");
-                context.Wait(MessageReceivedAsync);
-            }
-        }
+        //        await context.PostAsync(replyToConversation);
+        //        context.Wait(MessageReceivedAsync);
+        //    }
+        //    else // They said no
+        //    {
+        //        await context.PostAsync("Goodbye!(heart)");
+        //        context.Wait(MessageReceivedAsync);
+        //    }
+        //}
 
         // Utility
 

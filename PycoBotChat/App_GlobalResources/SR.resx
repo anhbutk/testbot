@@ -144,6 +144,9 @@
   <data name="PycoTerm" xml:space="preserve">
     <value>We are digital consulting and software development agency</value>
   </data>
+  <data name="String1" xml:space="preserve">
+    <value>&lt;h3&gt;The following email was sent to you by PycoGroup.&lt;/h3&gt;&lt;br /&gt;&lt;p&gt;Apparently, you needed OTP to chat with PycoBot- So here it is: &lt;br /&gt;OTP:&lt;b&gt;{0}&lt;/b&gt;&lt;br /&gt;&lt;/p&gt;</value>
+  </data>
   <data name="Welcome" xml:space="preserve">
     <value>Now, what the team are you looking for?</value>
   </data>

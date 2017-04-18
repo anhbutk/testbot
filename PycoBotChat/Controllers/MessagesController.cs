@@ -60,8 +60,16 @@ namespace PycoBotChat
                  activity.ChannelId, activity.Conversation.Id, activity.From.Id);               
 
                 Models.BotDataEntities DB = new Models.BotDataEntities();
-                User user = DB.Users.FirstOrDefault(x => x.UserID == activity.From.Id);
-                StringBuilder strReplyMessage = new StringBuilder();
+                User user;
+                try
+                {
+                     user = DB.Users.FirstOrDefault(x => x.UserID == activity.From.Id);
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
+                    StringBuilder strReplyMessage = new StringBuilder();
                 if (user == null)
                 {
                     boolAskedForUserName = leadData.GetProperty<bool>("AskedForUserName");
@@ -133,14 +141,14 @@ namespace PycoBotChat
                             DB.Users.Attach(user);
                             DB.Entry(user).State = EntityState.Modified;
                             // other changed properties
-                            DB.SaveChanges();                            
+                            DB.SaveChanges();
                             strReplyMessage.Append(string.Format(SR.OTPValid, activity.From.Name));
                             ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
                             Activity replyMessage = activity.CreateReply(strReplyMessage.ToString());
 
                             // Call the CreateButtons utility method 
                             // that will create 5 buttons to put on the Here Card
-                            List<CardAction> cardButtons = UIControl.CreateButtons();
+                            List<CardAction> cardButtons = UIControl.CreateButtons("team");
 
                             // Create a Hero Card and add the buttons 
                             HeroCard plCard = new HeroCard()
@@ -168,11 +176,12 @@ namespace PycoBotChat
                         {
                             strReplyMessage.Append(SR.OTPInvalid);
                             DB.Users.Remove(user);
+                            DB.SaveChanges();
                             ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
                             Activity replyMessage = activity.CreateReply(strReplyMessage.ToString());
                             await connector.Conversations.ReplyToActivityAsync(replyMessage);
                         }
-                      
+
                     }
                 }
             }
@@ -187,8 +196,14 @@ namespace PycoBotChat
         private string SendOTP(Activity activity, string email)
         {
             string newpass = new EmailHelper().GenerateOTP();
-            string body = string.Format(SR.EmailOTP, newpass); 
-            new EmailHelper().SendGrid(email, activity.From.Name, SR.EmailSubject, body);
+            string body = string.Format(SR.EmailOTP, newpass);
+            //new EmailHelper().SendGrid(email, activity.From.Name, SR.EmailSubject, body);
+            try
+            {
+                new EmailHelper().Send(email, string.Empty, string.Empty, SR.EmailSubject, body);
+            }
+            catch { };
+            //new EmailHelper().Send(email, SR.EmailSubject, body);
             return newpass;
         }
 

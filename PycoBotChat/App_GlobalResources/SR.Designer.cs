@@ -142,6 +142,15 @@ namespace Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;h3&gt;The following email was sent to you by PycoGroup.&lt;/h3&gt;&lt;br /&gt;&lt;p&gt;Apparently, you needed OTP to chat with PycoBot- So here it is: &lt;br /&gt;OTP:&lt;b&gt;{0}&lt;/b&gt;&lt;br /&gt;&lt;/p&gt;.
+        /// </summary>
+        internal static string String1 {
+            get {
+                return ResourceManager.GetString("String1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Now, what the team are you looking for?.
         /// </summary>
         internal static string Welcome {

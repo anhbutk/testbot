@@ -16,6 +16,8 @@ namespace PycoBotChat.Models
         public virtual DbSet<RESOURCE> RESOURCEs { get; set; }
         public virtual DbSet<R_PERIOD_VIEW> R_PERIOD_VIEW { get; set; }
         public virtual DbSet<RESOURCE_VIEW> RESOURCE_VIEW { get; set; }
+
+     
         public virtual DbSet<UserLog> UserLogs { get; set; }
         public virtual DbSet<User> Users { get; set; }
 
@@ -33,6 +35,8 @@ namespace PycoBotChat.Models
 
         public virtual DbSet<SKILLSET_VIEW> SKILLSET_VIEW { get; set; }
         public virtual DbSet<TIMESHEET_PROJECT_INFO_VIEW> TIMESHEET_PROJECT_INFO_VIEW { get; set; }
+
+        public virtual DbSet<RESOURCE_IN_PROJECT_VIEW> RESOURCE_IN_PROJECT_VIEW { get; set; }
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<TIMESHEET_PROJECT_INFO_VIEW>()

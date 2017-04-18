@@ -8,6 +8,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using System;
+using System.Threading.Tasks;
+using RestSharp;
+using RestSharp.Authenticators;
 
 namespace PycoBotChat.Helpers
 {
@@ -52,23 +56,24 @@ namespace PycoBotChat.Helpers
                 Host = settings.Network.Host,
                 Port = settings.Network.Port,
                 EnableSsl = settings.Network.EnableSsl,
+                UseDefaultCredentials = settings.Network.DefaultCredentials,
                 Credentials = new NetworkCredential(settings.Network.UserName, settings.Network.Password)
             };
 
             return smtpClient;
         }
 
-        public async void SendGrid(string toAddresses, string userName, string subject, string body)
+        public async Task SendGrid(string toAddresses, string userName, string subject, string body)
         {
             try
             {
-                var apiKey = "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";// System.Environment.GetEnvironmentVariable("SENDGRID_APIKEY");
+                var apiKey ="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";// System.Environment.GetEnvironmentVariable("SENDGRID_APIKEY");
+
                 var client = new SendGridClient(apiKey);
 
                 var from = new EmailAddress("pycogroup.chatbot@pycogroup.com", "Pyco Bot Chat");
              
-                var to = new EmailAddress(toAddresses, userName);
-            
+                var to = new EmailAddress(toAddresses, userName);           
                 var msg = MailHelper.CreateSingleEmail(from, to, subject, body, body);
                 var response = await client.SendEmailAsync(msg);
             }
@@ -85,15 +90,9 @@ namespace PycoBotChat.Helpers
                 smtpClient = GetDefaultSmtpClient();
             }
 
-            using (var message = new MailMessage())
+            using (var message = new MailMessage(new MailAddress(string.IsNullOrEmpty(SenderEmail) ? "bupaad2016@gmail.com" : SenderEmail), new MailAddress(toAddresses)))
             {
-                message.From = new MailAddress(SenderEmail);
-                message.To.Add(toAddresses);
-                if (!string.IsNullOrEmpty(ccAddresses))
-                    message.CC.Add(ccAddresses);
-                if (!string.IsNullOrEmpty(bccAdresses))
-                    message.Bcc.Add(bccAdresses);
-                message.Subject = "=?UTF-8?B?" + Convert.ToBase64String(Encoding.UTF8.GetBytes(subject)) + "?=";
+                message.Subject = subject;
                 message.Body = body;
                 message.IsBodyHtml = true;
 
@@ -114,6 +113,45 @@ namespace PycoBotChat.Helpers
             }
 
             return results[0];
+        }
+
+
+        private const string AuthenticationParam = "api";
+        private const string DomainKey = "domain";
+        private const string ResourceType = "{domain}/messages";
+        private const string DefaultEmailSender = "admin@dice.com";
+
+        public void Send(string toAddress, string subject, string body)
+        {
+            var response = SendSimpleMessage(toAddress, subject, body);
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                throw new Exception("Send mail is not delivery successfully. ErrorCode: " + response.StatusCode + " ." + response.StatusDescription);
+            }
+        }
+
+        private static IRestResponse SendSimpleMessage(string to, string subject, string message)
+        {
+            var client = new RestClient();
+            client.BaseUrl = new Uri("https://api.mailgun.net/v3");
+            client.Authenticator = new HttpBasicAuthenticator(AuthenticationParam, "key-dd7c647c0545d46e21c918c9015bb9cb");
+            var request = GetRestRequest(to, subject, message);
+            return client.Execute(request);
+        }
+
+        private static RestRequest GetRestRequest(string toAddress, string subject, string message)
+        {
+            var request = new RestRequest();
+            request.AddParameter(DomainKey, "sandbox8c985982edf74edba0f8106d50d59037.mailgun.org", ParameterType.UrlSegment);
+            request.Resource = ResourceType;
+
+            request.AddParameter("from", "admin@dice.com");
+            request.AddParameter("to", toAddress);
+            request.AddParameter("subject", subject);
+            request.AddParameter("html", message);
+            request.Method = Method.POST;
+
+            return request;
         }
     }
 }

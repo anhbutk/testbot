@@ -11,7 +11,7 @@ namespace PycoBotChat.Helpers
     public static class UIControl
     {
         public static readonly List<string> Department = new List<string> { "JAVA", "NET", "PHP", "QC", "PM", "HTML", "Mobile", "BA" };
-        public static List<CardAction> CreateButtons()
+        public static List<CardAction> CreateButtons(string type)
         {
 
             // Create 5 CardAction buttons 
@@ -23,7 +23,7 @@ namespace PycoBotChat.Helpers
                 {
                     Type = "imBack",
                     Title = Department[i],
-                    Value = Department[i]
+                    Value = string.Format("{1}:{0}",Department[i],type)
                 };
 
                 cardButtons.Add(CardButton);
@@ -44,7 +44,7 @@ namespace PycoBotChat.Helpers
             return card;
         }
         #region private static Activity ShowButtons(IDialogContext context, string strText)
-        public static Activity ShowButtons(IDialogContext context, string strText)
+        public static Activity ShowButtons(IDialogContext context, string strText, string type)
         {
             // Create a reply Activity
             Activity replyToConversation = (Activity)context.MakeMessage();
@@ -54,7 +54,7 @@ namespace PycoBotChat.Helpers
 
             // Call the CreateButtons utility method 
             // that will create 5 buttons to put on the Here Card
-            List<CardAction> cardButtons = CreateButtons();
+            List<CardAction> cardButtons = CreateButtons(type);
 
             // Create a Hero Card and add the buttons 
             HeroCard plCard = new HeroCard()
